@@ -1,0 +1,67 @@
+# Project-owned overlay; the vendored Harness source remains unchanged.
+- id: llm-deepseek
+  disabled: true
+- id: persistent-bash
+  disabled: true
+- id: persistent-pwsh
+  disabled: true
+- id: tool-fs
+  disabled: true
+- id: tool-working-directory
+  disabled: true
+- id: system-prompt
+  config:
+    includeHarnessIdentity: false
+    includeRuntimeContext: false
+    personaPrefix: >-
+      You are an on-chain quantitative research assistant. Use the onchain-research
+      skill before answering dataset questions, then use the onchain MCP tools.
+      Numerical claims must come from current tool results. Explain in Chinese.
+      Return the skill's JSON report format. Existing research notes are unreviewed
+      context, not authoritative evidence. Do not claim live data or trained forecasts.
+- insert:
+    - id: research-openai
+      name: '@deepseek-ai/dsh-llm-pi-ai'
+      config:
+        providers:
+          openai:
+            apiKeyEnv: OPENAI_API_KEY
+            api: openai-responses
+            baseURL: https://api.openai.com/v1
+            models:
+              - id: gpt-6.1-sol
+                contextWindow: 1050000
+                maxTokens: 128000
+                reasoningEfforts:
+                  low: low
+                  medium: medium
+                  high: high
+            retryPolicy:
+              mode: normal
+              maxRetries: 2
+    - id: research-skill
+      name: '@deepseek-ai/dsh-skill'
+    - id: research-skill-filesystem
+      name: '@deepseek-ai/dsh-skill-filesystem'
+      config:
+        includeDefaultRoots: false
+        customSkillDirs:
+          - !!js process.env.RESEARCH_PROJECT_ROOT + '/.dsh/skills'
+        watch: false
+    - id: research-tool-skill
+      name: '@deepseek-ai/dsh-tool-skill'
+    - id: research-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: onchain
+        transport: stdio
+        command: !!js process.env.RESEARCH_PYTHON
+        args: ['-m', 'onchain_agent.server']
+        cwd: !!js process.env.RESEARCH_PROJECT_ROOT
+        env:
+          RESEARCH_TOOL_LOG: !!js process.env.RESEARCH_TOOL_LOG
+          RESEARCH_MEMORY_DB: !!js process.env.RESEARCH_MEMORY_DB
+          RESEARCH_READ_NOTES: !!js process.env.RESEARCH_READ_NOTES ?? '1'
+        startupTimeoutMs: 30000
+        toolCallTimeoutMs: 30000
+        failOnStartupError: true

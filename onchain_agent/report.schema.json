@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["answer_markdown", "claims", "limitations"],
+  "properties": {
+    "answer_markdown": {"type": "string"},
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fact_id", "value", "unit", "evidence_ids"],
+        "properties": {
+          "fact_id": {"type": "string"},
+          "value": {"type": ["string", "null"]},
+          "unit": {"type": "string"},
+          "evidence_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}

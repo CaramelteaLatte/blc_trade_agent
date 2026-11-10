@@ -1,0 +1,54 @@
+{
+  "date_utc": "2026-10-05",
+  "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+  "first_block": 26122440,
+  "last_block": 26129614,
+  "snapshot_sha256": "86ff8badadd33c27dc7f8c650fd23a42b45974b8002201e56625d87ff81993e2",
+  "source_file": "events_2026-10-05.ndjson",
+  "event_count": 8949,
+  "swap_count": 8700,
+  "mint_count": 46,
+  "burn_count": 116,
+  "other_event_count": 87,
+  "usdc_volume": "28745664.605273",
+  "large_trade_threshold_usdc": "100000",
+  "large_trade_count": 9,
+  "large_trade_frequency": "0.001034482758620689655172413793",
+  "largest_swap_evidence": [
+    {
+      "usdc": "212433.972542",
+      "transaction_hash": "0x49b452902a8d92e0eca09a0181b009b051f517afc4fc531a1079a68fc76267fb",
+      "log_index": 598,
+      "block_number": 26122805
+    },
+    {
+      "usdc": "192523.643876",
+      "transaction_hash": "0x64a327fdd8ffe4c73050e8bc8ce9a2515b8051aa6e9a0d44e35118c017b1894c",
+      "log_index": 37,
+      "block_number": 26122819
+    },
+    {
+      "usdc": "185763.283811",
+      "transaction_hash": "0x37745d60526a490f7669a0ea3cf36ea27fe0fc7c976e2c3e7d5bd24b9e7b3efe",
+      "log_index": 1212,
+      "block_number": 26122805
+    },
+    {
+      "usdc": "158456.373408",
+      "transaction_hash": "0x5bb266c81b318a3f1e061cdbf562b98bbfcad585f0984742854d43d8f740b0c1",
+      "log_index": 9,
+      "block_number": 26128861
+    },
+    {
+      "usdc": "158128.888407",
+      "transaction_hash": "0xad2dcec3ec634590bf7049fea2f94250ec1837ba1cd409df5dea42de6f911441",
+      "log_index": 12,
+      "block_number": 26125886
+    }
+  ],
+  "definitions": {
+    "swap_count": "number of Swap events, not unique transactions or users",
+    "usdc_volume": "sum(abs(Swap.amount0_raw) / 1e6); token0 is USDC",
+    "large_trade_frequency": "large_trade_count / swap_count"
+  }
+}

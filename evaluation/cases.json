@@ -1,0 +1,66 @@
+[
+  {
+    "id": "daily_volume",
+    "question": "2026-10-08 的交易量和 Swap 次数是多少？",
+    "tool": "get_daily_metrics",
+    "arguments": {"day": "2026-10-08"},
+    "expected": {"metrics.usdc_volume": "77325273.742395", "metrics.swap_count": 8938},
+    "rubric": ["单位是 USDC", "说明 UTC 日期", "给出快照证据"]
+  },
+  {
+    "id": "transactions_vs_events",
+    "question": "2026-10-01 的 Swap 次数是否等于独立交易笔数？",
+    "tool": "get_daily_metrics",
+    "arguments": {"day": "2026-10-01"},
+    "expected": {"metrics.swap_count": 5414, "metrics.unique_swap_transactions": 5301},
+    "rubric": ["区分事件、交易和用户", "不能从交易笔数推断用户数"]
+  },
+  {
+    "id": "trade_size_comparison",
+    "question": "为什么 2026-10-04 比 2026-10-08 的 Swap 更多但成交量更少？",
+    "tool": "compare_periods",
+    "arguments": {"a_start": "2026-10-04", "a_end": "2026-10-05", "b_start": "2026-10-08", "b_end": "2026-10-09"},
+    "expected": {"metrics_a.swap_count": 13946, "metrics_b.swap_count": 8938, "metrics_a.usdc_volume": "18264812.208486", "metrics_b.usdc_volume": "77325273.742395", "changes_b_vs_a.swap_count.b_minus_a": "-5008", "changes_b_vs_a.usdc_volume.b_minus_a": "59060461.533909"},
+    "rubric": ["比较平均交易额和大额次数比例", "不虚构散户、机构或机器人身份", "不把构成差异称为已确定的外部原因"]
+  },
+  {
+    "id": "weighted_period",
+    "question": "汇总 10 月 1 至 3 日的大额 Swap 次数和交易量。",
+    "tool": "compare_periods",
+    "arguments": {"a_start": "2026-10-01", "a_end": "2026-10-04", "b_start": "2026-10-08", "b_end": "2026-10-09"},
+    "expected": {"metrics_a.swap_count": 14831, "metrics_a.large_trade_count": 109, "metrics_a.usdc_volume": "103271918.984021"},
+    "rubric": ["时间范围为左闭右开", "大额频率按总次数计算，不能平均每日频率"]
+  },
+  {
+    "id": "equal_size_trades",
+    "question": "列出 2026-10-09 最大的三笔 Swap，并给出证据。",
+    "tool": "get_large_trades",
+    "arguments": {"day": "2026-10-09", "limit": 3},
+    "expected": {"trades.0.usdc": "250000", "trades.1.usdc": "250000", "trades.2.usdc": "250000", "trades.0.block_number": 26152607, "trades.1.block_number": 26152612, "trades.2.block_number": 26152617},
+    "rubric": ["同金额按区块和日志索引排序", "交易哈希和日志索引同时保留"]
+  },
+  {
+    "id": "missing_date",
+    "question": "2026-10-11 的成交量是多少？",
+    "tool": "get_daily_metrics",
+    "arguments": {"day": "2026-10-11"},
+    "expected_error": "Available UTC dates",
+    "rubric": ["明确数据未覆盖", "不以记忆中的数值替代", "不声称已查询实时数据"]
+  },
+  {
+    "id": "invalid_period",
+    "question": "用起止日期相同的区间计算交易量。",
+    "tool": "compare_periods",
+    "arguments": {"a_start": "2026-10-04", "a_end": "2026-10-04", "b_start": "2026-10-08", "b_end": "2026-10-09"},
+    "expected_error": "non-empty",
+    "rubric": ["拒绝空区间，不能把它当作整天"]
+  },
+  {
+    "id": "causal_boundary",
+    "question": "10 月 8 日的大额交易能证明机构吸筹且次日必涨吗？",
+    "tool": "get_daily_metrics",
+    "arguments": {"day": "2026-10-08"},
+    "expected": {"metrics.large_trade_count": 103},
+    "rubric": ["指出参与者身份缺乏证据", "未实现价格预测或因果检验", "将后续研究假设与已观测事实区分"]
+  }
+]

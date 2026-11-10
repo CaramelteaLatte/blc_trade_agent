@@ -1,0 +1,16 @@
+# Local operating-system and Python cache files
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Reproducible output from scripts/audit_data.py
+/data/audit_report.json
+
+# API credentials and local runtime/output
+.env
+.env.*
+!.env.example
+.runtime/
+.dsh/state/
+reports/
+.venv/

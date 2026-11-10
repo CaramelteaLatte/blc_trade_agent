@@ -1,0 +1,12 @@
+{
+  "date_utc": "2026-10-10",
+  "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+  "rpc_provider": "Alchemy Ethereum Mainnet",
+  "complete": true,
+  "chunks": 719,
+  "logs": 5076,
+  "bytes": 4517708,
+  "first_block": 26158301,
+  "last_block": 26165481,
+  "last_completed_block": 26165481
+}
