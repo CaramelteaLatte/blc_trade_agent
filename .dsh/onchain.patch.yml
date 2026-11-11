@@ -18,18 +18,25 @@
       skill before answering dataset questions, then use the onchain MCP tools.
       Numerical claims must come from current tool results. Explain in Chinese.
       Return the skill's JSON report format. Existing research notes are unreviewed
-      context, not authoritative evidence. Do not claim live data or trained forecasts.
+      context, not authoritative evidence. Use live RPC tools for current/recent data,
+      report their cutoff, finality and partial-day status. Never substitute old snapshots
+      for unavailable live data. Use get_volatility_study for the historical large-swap
+      and next-hour volatility research case. Its fitted historical baselines are
+      exploratory, not a validated live forecast or trading-return backtest.
 - insert:
-    - id: research-openai
+    - id: research-progress
+      name: './progress-bridge.mjs'
+    - id: research-api
       name: '@deepseek-ai/dsh-llm-pi-ai'
       config:
         providers:
-          openai:
+          research-api:
+            displayName: Research API Gateway
             apiKeyEnv: OPENAI_API_KEY
             api: openai-responses
-            baseURL: https://api.openai.com/v1
+            baseURL: !!js process.env.RESEARCH_API_BASE_URL
             models:
-              - id: gpt-6.1-sol
+              - id: !!js process.env.RESEARCH_MODEL
                 contextWindow: 1050000
                 maxTokens: 128000
                 reasoningEfforts:
@@ -59,9 +66,11 @@
         args: ['-m', 'onchain_agent.server']
         cwd: !!js process.env.RESEARCH_PROJECT_ROOT
         env:
+          ALCHEMY_RPC_URL: !!js process.env.ALCHEMY_RPC_URL ?? ''
           RESEARCH_TOOL_LOG: !!js process.env.RESEARCH_TOOL_LOG
+          RESEARCH_PROGRESS_LOG: !!js process.env.RESEARCH_PROGRESS_LOG ?? ''
           RESEARCH_MEMORY_DB: !!js process.env.RESEARCH_MEMORY_DB
           RESEARCH_READ_NOTES: !!js process.env.RESEARCH_READ_NOTES ?? '1'
         startupTimeoutMs: 30000
-        toolCallTimeoutMs: 30000
+        toolCallTimeoutMs: 240000
         failOnStartupError: true

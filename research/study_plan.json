@@ -1,0 +1,33 @@
+{
+  "study_id": "large_swaps_next_hour_volatility_v1",
+  "question": "Do hours with concentrated large swaps precede higher next-hour pool-price realized volatility?",
+  "scope": "Exploratory historical study of one Ethereum USDC/WETH pool; not a trading-return backtest or live forecast.",
+  "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+  "start_utc": "2026-10-01T00:00:00+00:00",
+  "end_utc_exclusive": "2026-10-11T00:00:00+00:00",
+  "split_utc": "2026-10-07T00:00:00+00:00",
+  "large_swap_usdc": 100000,
+  "signal_quantile": 0.9,
+  "minimum_large_swaps": 2,
+  "minimum_hour_swaps": 20,
+  "price_grid_seconds": 300,
+  "maximum_price_age_seconds": 900,
+  "feature_seconds": 3600,
+  "target_seconds": 3600,
+  "bootstrap_repetitions": 2000,
+  "bootstrap_block_hours": 6,
+  "random_seed": 20261111,
+  "minimum_test_signal_hours": 10,
+  "predictions": ["training_mean", "persistence", "signal_conditional_mean", "current_volatility_ols", "current_volatility_plus_signal_ols"],
+  "primary_effect": "Test-set mean next-hour RV in signal hours minus that in non-signal hours, measured in basis points.",
+  "secondary_prediction_check": "Paired test MAE of current-volatility-plus-signal OLS versus current-volatility OLS; both fitted only on training labels.",
+  "threshold_policy": "90th percentile of large_swap_count / swap_count in eligible training hours, linear interpolation; require at least two large swaps and twenty swaps. No threshold search on test outcomes.",
+  "time_policy": "Decision at the feature-hour end. Features use only events strictly before that time; labels use the following hour. Training labels must end at or before split; test decisions must be at or after split.",
+  "inference_policy": "A circular moving-block bootstrap resamples the hourly test timeline, retaining gaps. Intervals are exploratory and conditional on the chosen block length and trained parameters.",
+  "history_policy": "Rules recorded before computing this study's results. These snapshots were already used in project demonstrations, so this is not a prospective or independently preregistered experiment.",
+  "references": [
+    "https://raw.githubusercontent.com/Uniswap/v3-core/main/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
+    "https://blog.uniswap.org/uniswap-v3-math-primer",
+    "https://otexts.com/fpp3/toolbox.html"
+  ]
+}

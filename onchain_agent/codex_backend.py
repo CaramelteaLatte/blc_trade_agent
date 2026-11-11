@@ -53,10 +53,12 @@ def build_command(run_dir: Path, model: str, reasoning: str, use_memory: bool) -
         "mcp_servers.onchain.env.RESEARCH_MEMORY_DB": str(ROOT / ".dsh/state/research.sqlite3"),
         "mcp_servers.onchain.env.RESEARCH_READ_NOTES": "1" if use_memory else "0",
         "mcp_servers.onchain.startup_timeout_sec": 30,
-        "mcp_servers.onchain.tool_timeout_sec": 30,
+        "mcp_servers.onchain.tool_timeout_sec": 240,
         "mcp_servers.onchain.required": True,
         "mcp_servers.onchain.default_tools_approval_mode": "approve",
     }
+    if os.environ.get("ALCHEMY_RPC_URL"):
+        settings["mcp_servers.onchain.env_vars"] = ["ALCHEMY_RPC_URL"]
     for key, value in settings.items():
         # JSON scalars and arrays used here are also TOML literals. No shell is involved.
         command.extend(["-c", key + "=" + json.dumps(value, ensure_ascii=False)])

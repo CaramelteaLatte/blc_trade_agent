@@ -1,0 +1,3 @@
+-r requirements.txt
+# Optional plotting dependency; research calculations themselves use the stdlib.
+matplotlib==3.10.9

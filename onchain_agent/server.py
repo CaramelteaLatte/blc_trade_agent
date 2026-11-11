@@ -1,4 +1,4 @@
-"""Local MCP tools. No RPC or model credentials are needed in this process."""
+"""MCP tools for historical snapshots, on-demand RPC collection and research memory."""
 
 import json
 import os
@@ -11,8 +11,11 @@ from mcp.server.mcpserver import MCPServer
 
 from .data_tools import Dataset, ROOT
 from .memory import Memory
+from . import live_data
+from .progress import record_progress
+from . import research
 
-mcp = MCPServer("onchain", instructions="Use the onchain-research skill. Tools return verified local numbers, stable fact IDs and evidence. No live market access.")
+mcp = MCPServer("onchain", instructions="Use the onchain-research skill. For current/recent data call get_live_metrics or get_live_day_metrics; historical local tools only cover October 1–10 2026. RPC results include cutoff, finality and coverage. Never substitute old snapshots for missing live data.")
 _log_lock = threading.Lock()
 
 
@@ -56,6 +59,38 @@ def compare_periods(a_start: str, a_end: str, b_start: str, b_end: str) -> dict:
 def get_large_trades(day: str, limit: int = 5) -> dict:
     """Get 1–5 largest audited swaps with transaction/log references. Equal amounts sort by block and log index."""
     return invoke("get_large_trades", {"day": day, "limit": limit})
+
+
+def invoke_live(name: str, arguments: dict) -> dict:
+    try:
+        result = getattr(live_data, name)(**arguments, progress=record_progress)
+    except ValueError as exc:
+        result = {"status": "unavailable", "data_mode": "on_demand_rpc", "reason": str(exc),
+                  "facts": [], "source_refs": [], "collection_complete": False}
+    return record(name, arguments, result)
+
+
+@mcp.tool()
+def get_live_metrics(lookback_minutes: int = 60, finality: str = "latest") -> dict:
+    """Fetch fresh Ethereum pool logs now for the last 1–1440 minutes ending at the selected chain head. Returns metrics, top 5 swaps, cutoff and saved evidence. finality: latest (provisional) or finalized (delayed). May take up to 180 seconds."""
+    return invoke_live("get_live_metrics", {"lookback_minutes": lookback_minutes, "finality": finality})
+
+
+@mcp.tool()
+def get_live_day_metrics(day: str, timezone: str = "UTC", finality: str = "latest") -> dict:
+    """Fetch pool logs via RPC for YYYY-MM-DD in UTC or Asia/Shanghai. A current day is partial and explicitly marked; future dates are unavailable. Returns daily metrics and top 5 swaps. May take up to 180 seconds."""
+    return invoke_live("get_live_day_metrics", {"day": day, "timezone": timezone, "finality": finality})
+
+
+@mcp.tool()
+def get_volatility_study() -> dict:
+    """Recompute the fixed historical pilot: do concentrated large swaps precede higher next-hour volatility? Uses audited October 1–10 2026 snapshots, first-six-day training and later-four-day holdout, five-minute pool prices, baseline forecasts and bootstrap intervals. No live forecast, price-direction guarantee or trading PnL backtest."""
+    try:
+        result = research.get_volatility_study()
+    except ValueError as exc:
+        result = {"status": "unavailable", "data_mode": "historical_research", "study_complete": False,
+                  "reason": str(exc), "facts": [], "source_refs": []}
+    return record("get_volatility_study", {}, result)
 
 
 @mcp.tool()

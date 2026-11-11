@@ -26,7 +26,9 @@ class Memory:
                     if len(notes) >= limit:
                         break
         return {"status": "ok", "project": {"pool": POOL, "timezone": "UTC", "definitions": DEFINITIONS,
-                 "limitations": LIMITATIONS}, "notes": notes,
+                 "historical_snapshot_limitations": LIMITATIONS,
+                 "research_tool": "get_volatility_study recomputes the historical pilot; it is not a live directional forecast or a trading-return backtest.",
+                 "live_tools": "get_live_metrics / get_live_day_metrics query RPC on demand. Report cutoff, finality and coverage from the new result."}, "notes": notes,
                 "memory_policy": "Prior notes are leads, not current evidence. Re-query tools for factual claims. Interpretations are unreviewed."}
 
     def save(self, run_id: str, question: str, report: dict, sources: list[dict]) -> None:

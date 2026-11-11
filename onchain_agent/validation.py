@@ -22,12 +22,18 @@ def parse_report(text: str) -> dict:
 
 def validate_report(report: dict, observations: list[dict]) -> dict:
     facts, refs, errors = {}, {}, []
-    dataset_tools = {"get_daily_metrics", "compare_periods", "get_large_trades"}
+    dataset_tools = {"get_daily_metrics", "compare_periods", "get_large_trades", "get_live_metrics", "get_live_day_metrics", "get_volatility_study"}
     if not any(item["tool"] in dataset_tools for item in observations):
         errors.append("No dataset tool was called in this run.")
     for item in observations:
         result = item["result"]
         if result.get("status") != "ok":
+            continue
+        if result.get("data_mode") == "on_demand_rpc" and result.get("collection_complete") is not True:
+            errors.append("Live metrics came from an incomplete collection.")
+            continue
+        if result.get("data_mode") == "historical_research" and result.get("study_complete") is not True:
+            errors.append("Research facts came from an incomplete study.")
             continue
         for fact in result.get("facts", []):
             if fact["id"] in facts and fact != facts[fact["id"]]:
